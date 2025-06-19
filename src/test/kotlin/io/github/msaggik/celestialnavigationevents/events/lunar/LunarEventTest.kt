@@ -286,6 +286,86 @@ internal class LunarEventTest {
     }
 
     @Test
+    fun moonEventsInS68_60AndE33_01_date_19_06_25() {
+        val coordinate = Pair(-68.60, 33.01)
+        val dateTime = ZonedDateTime.of(2025, 6, 19, 10, 0, 0, 0, ZoneOffset.ofHours(12))
+
+        val result = calculator.calculateLunarEventDay(coordinate.first, coordinate.second, dateTime)
+        val moonrise = result.events.firstOrNull { it.type == EventType.RISE } ?: fail("No moonrise")
+        val moonset = result.events.firstOrNull { it.type == EventType.SET } ?: fail("No moonset")
+
+        TestUtils.assertAzimuthAroundLunar(
+            coordinate = coordinate,
+            dateTime = dateTime,
+            actual = 89.20,
+            expected = moonrise.azimuth,
+            visibleResultTest = VISIBLE_LOG_TEST
+        )
+        TestUtils.assertEqualsWithToleranceLunar(
+            coordinate = coordinate,
+            dateTime = dateTime,
+            actual = Time(hour = 9, min = 58, sec = 9),
+            expected = moonrise.time,
+            visibleResultTest = VISIBLE_LOG_TEST
+        )
+
+        TestUtils.assertAzimuthAroundLunar(
+            coordinate = coordinate,
+            dateTime = dateTime,
+            actual = 279.72,
+            expected = moonset.azimuth,
+            visibleResultTest = VISIBLE_LOG_TEST
+        )
+        TestUtils.assertEqualsWithToleranceLunar(
+            coordinate = coordinate,
+            dateTime = dateTime,
+            actual = Time(hour = 21, min = 40, sec = 43),
+            expected = moonset.time,
+            visibleResultTest = VISIBLE_LOG_TEST
+        )
+    }
+
+    @Test
+    fun moonEventsInN57_71AndE39_77_date_19_06_25() {
+        val coordinate = Pair(57.71, 39.77)
+        val dateTime = ZonedDateTime.of(2025, 6, 19, 10, 0, 0, 0, ZoneOffset.ofHours(3))
+
+        val result = calculator.calculateLunarEventDay(coordinate.first, coordinate.second, dateTime)
+        val moonrise = result.events.firstOrNull { it.type == EventType.RISE } ?: fail("No moonrise")
+        val moonset = result.events.firstOrNull { it.type == EventType.SET } ?: fail("No moonset")
+
+        TestUtils.assertAzimuthAroundLunar(
+            coordinate = coordinate,
+            dateTime = dateTime,
+            actual = 89.71,
+            expected = moonrise.azimuth,
+            visibleResultTest = VISIBLE_LOG_TEST
+        )
+        TestUtils.assertEqualsWithToleranceLunar(
+            coordinate = coordinate,
+            dateTime = dateTime,
+            actual = Time(hour = 0, min = 25, sec = 53),
+            expected = moonrise.time,
+            visibleResultTest = VISIBLE_LOG_TEST
+        )
+
+        TestUtils.assertAzimuthAroundLunar(
+            coordinate = coordinate,
+            dateTime = dateTime,
+            actual = 276.96,
+            expected = moonset.azimuth,
+            visibleResultTest = VISIBLE_LOG_TEST
+        )
+        TestUtils.assertEqualsWithToleranceLunar(
+            coordinate = coordinate,
+            dateTime = dateTime,
+            actual = Time(hour = 13, min = 14, sec = 39),
+            expected = moonset.time,
+            visibleResultTest = VISIBLE_LOG_TEST
+        )
+    }
+
+    @Test
     fun illuminationShouldBeWithinBounds() {
         val coordinate = Pair(0.0, 0.0)
         val dateTime = ZonedDateTime.of(2025, 6, 9, 0, 0, 0, 0, ZoneOffset.UTC)

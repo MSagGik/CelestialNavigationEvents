@@ -204,7 +204,8 @@ internal object LunarUtils {
             events = events,
             type = eventsToTypeLunarEventDay(
                 events = events,
-                currentVerticalPosition = previousVerticalPosition
+                currentVerticalPosition = previousVerticalPosition,
+                previousVerticalPosition = prevVertical
             ),
             ageInDays = ageInDays,
             illuminationPercent = illuminationPercent
@@ -386,7 +387,8 @@ internal object LunarUtils {
      */
     private fun eventsToTypeLunarEventDay(
         events: List<Event>,
-        currentVerticalPosition: Double
+        currentVerticalPosition: Double,
+        previousVerticalPosition: Double
     ): HorizonCrossingLunarState {
         return when (events.size) {
             0 -> {
@@ -409,9 +411,18 @@ internal object LunarUtils {
             2 -> {
                 val (first, second) = events.sortedBy { it.time.toTotalMilliseconds() }
                 when {
-                    first.type == EventType.RISE && second.type == EventType.SET -> HorizonCrossingLunarState.RISEN_AND_SET
-                    first.type == EventType.SET && second.type == EventType.RISE -> HorizonCrossingLunarState.SET_AND_RISEN
-                    first.type != second.type -> HorizonCrossingLunarState.RISEN_IS_SET
+                    first.type == EventType.RISE &&
+                            second.type == EventType.SET &&
+                            first.time.toTotalMilliseconds() < second.time.toTotalMilliseconds() -> HorizonCrossingLunarState.RISEN_AND_SET
+                    first.type == EventType.SET &&
+                            second.type == EventType.RISE &&
+                            first.time.toTotalMilliseconds() < second.time.toTotalMilliseconds() -> HorizonCrossingLunarState.SET_AND_RISEN
+                    first.type != second.type &&
+                            first.time.toTotalMilliseconds() == second.time.toTotalMilliseconds() &&
+                            previousVerticalPosition > 0 -> HorizonCrossingLunarState.SET_IS_RISEN
+                    first.type != second.type &&
+                            first.time.toTotalMilliseconds() == second.time.toTotalMilliseconds() &&
+                            previousVerticalPosition < 0 -> HorizonCrossingLunarState.RISEN_IS_SET
                     else -> HorizonCrossingLunarState.ERROR
                 }
             }
@@ -433,19 +444,6 @@ internal object LunarUtils {
     }
 
     /**
-     * Computes the illuminated fraction of the Moon based on its age in days.
-     *
-     * Uses an approximation formula derived from the cosine function to model the lunar
-     * illumination curve. Accuracy is approximately ±5%.
-     *
-     * @param daysSinceNewMoon Number of days since the last new moon.
-     * @return Illumination percentage (0–100).
-     */
-    private fun calculateMoonIlluminationPercentage(daysSinceNewMoon: Double): Double {
-        return 0.5 * (1 + cos((Math.round(daysSinceNewMoon) + LUNAR_MONTH_DAYS / 2) / LUNAR_MONTH_DAYS * 2 * Math.PI)) * 100
-    }
-
-    /**
      * Calculates the Moon’s age in days based on a given Julian Date.
      *
      * The Moon's age is defined as the number of days elapsed since the last new moon.
@@ -462,5 +460,34 @@ internal object LunarUtils {
         }
         moonAge *= LUNAR_MONTH_DAYS
         return moonAge
+    }
+
+    /**
+     * Computes the illuminated fraction of the Moon based on its age in days.
+     *
+     * Uses a smoothed cosine approximation to reduce visual artifacts near phase boundaries.
+     * Accuracy is approximately ±5% and is sufficient for general-purpose astronomical applications.
+     *
+     * @param daysSinceNewMoon Number of days since the last new moon.
+     * @return Approximate illumination percentage (0–100).
+     */
+    private fun calculateMoonIlluminationPercentage(daysSinceNewMoon: Double): Double {
+        val previousDayIllumination = approximateMoonIlluminationByAge(daysSinceNewMoon - 1.0)
+        val currentDayIllumination = approximateMoonIlluminationByAge(daysSinceNewMoon)
+        return (previousDayIllumination + currentDayIllumination) / 2.0
+    }
+
+    /**
+     * Approximates the Moon’s illumination percentage using a cosine-based curve
+     * derived from the lunar synodic cycle. Does not account for geometric orbital effects.
+     *
+     * The function assumes a synodic month is symmetric and returns a value between 0 and 100.
+     *
+     * @param daysSinceNewMoon Number of days since the last new moon.
+     * @return Approximate illumination percentage (0–100).
+     */
+    private fun approximateMoonIlluminationByAge(daysSinceNewMoon: Double): Double {
+        val phase = ((daysSinceNewMoon + LUNAR_MONTH_DAYS / 2.0) / LUNAR_MONTH_DAYS) * 2.0 * Math.PI
+        return 0.5 * (1.0 + cos(phase)) * 100.0
     }
 }
