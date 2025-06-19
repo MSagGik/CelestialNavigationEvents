@@ -87,6 +87,16 @@ enum class HorizonCrossingLunarState {
     RISEN_IS_SET,
 
     /**
+     * The object's setting and rising times coincide or overlap,
+     * effectively occurring at the same moment.
+     *
+     * This is equivalent to RISEN_IS_SET but with a different
+     * chronological interpretation, such as a setting event
+     * immediately followed by a rise.
+     */
+    SET_IS_RISEN,
+
+    /**
      * Undefined or inconsistent horizon crossing state.
      *
      * Represents an error or unexpected condition in computation.

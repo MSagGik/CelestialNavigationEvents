@@ -75,9 +75,12 @@ All calculations run locally; no internet connection is required.
 
    ```kotlin
    dependencies {
-       implementation("com.github.MSagGik:CelestialNavigationEvents:0.1.0")
+       implementation("com.github.MSagGik:CelestialNavigationEvents:0.1.1")
    }
    ```
+
+> ✅️ Current version: **0.1.1**  
+> See [CHANGELOG](CHANGELOG.md) for version history and recent updates.
 
 ---
 

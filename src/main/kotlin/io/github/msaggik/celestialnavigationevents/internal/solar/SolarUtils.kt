@@ -665,13 +665,13 @@ internal object SolarUtils {
                             first.time.toTotalMilliseconds() < second.time.toTotalMilliseconds() -> HorizonCrossingSolarState.RISEN_AND_SET
                     first.type == EventType.SET &&
                             second.type == EventType.RISE &&
-                            first.time.toTotalMilliseconds() > second.time.toTotalMilliseconds() -> HorizonCrossingSolarState.SET_AND_RISEN
+                            first.time.toTotalMilliseconds() < second.time.toTotalMilliseconds() -> HorizonCrossingSolarState.SET_AND_RISEN
                     first.type != second.type &&
                             first.time.toTotalMilliseconds() == second.time.toTotalMilliseconds() &&
-                            previousVerticalPosition > 0  -> HorizonCrossingSolarState.SET_IS_RISEN
+                            previousVerticalPosition > 0 -> HorizonCrossingSolarState.SET_IS_RISEN
                     first.type != second.type &&
                             first.time.toTotalMilliseconds() == second.time.toTotalMilliseconds() &&
-                            previousVerticalPosition < 0  -> HorizonCrossingSolarState.RISEN_IS_SET
+                            previousVerticalPosition < 0 -> HorizonCrossingSolarState.RISEN_IS_SET
                     else -> HorizonCrossingSolarState.ERROR
                 }
             }
